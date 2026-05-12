@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 export default function LoginPage() {
   const { isAuthenticated, login } = useAuth();
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,13 +17,13 @@ export default function LoginPage() {
     if (isAuthenticated) router.replace("/");
   }, [isAuthenticated, router]);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      await login({ username, password });
+      await login({ email, password });
       router.push("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
@@ -39,12 +39,12 @@ export default function LoginPage() {
       <h1>Log In</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="username">Username</label>
+          <label htmlFor="email">Email</label>
           <input
-            id="username"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>

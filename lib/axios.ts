@@ -22,17 +22,19 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => {
     const body = response.data as ApiResponse<unknown>;
-    if (response.status !== 200) {
+    if (body.code !== 0) {
       return Promise.reject(new Error(body.message || "Request failed"));
     }
     return response;
   },
   (error) => {
-    const body = error.response?.data as ApiResponse<unknown> | undefined;
-    if (body && error.response?.status === 200) {
-      error.response.data = body;
-      return Promise.resolve(error.response);
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("username");
+      window.location.href = "/login";
+      return Promise.reject(new Error("Session expired"));
     }
+    const body = error.response?.data as ApiResponse<unknown> | undefined;
     const message = body?.message || error.message || "Network error";
     return Promise.reject(new Error(message));
   },

@@ -1,12 +1,17 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { login as apiLogin } from "@/lib/auth";
+import { login as apiLogin, getUser } from "@/lib/auth";
 import type { LoginRequest } from "@/types";
+
+interface CurrentUser {
+  id: string;
+  name: string;
+}
 
 interface AuthContextType {
   token: string | null;
-  username: string | null;
+  currentUser: CurrentUser | null;
   isAuthenticated: boolean;
   login: (data: LoginRequest) => Promise<void>;
   logout: () => void;
@@ -14,14 +19,31 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+function decodeJWTPayload(token: string): { sub?: string } {
+  try {
+    const base64 = token.split(".")[1];
+    const json = atob(base64.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(json);
+  } catch {
+    return {};
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
-  const [username, setUsername] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setToken(localStorage.getItem("token"));
-    setUsername(localStorage.getItem("username"));
+    const savedToken = localStorage.getItem("token");
+    const savedUserId = localStorage.getItem("userId");
+    const savedUserName = localStorage.getItem("userName");
+    if (savedToken) {
+      setToken(savedToken);
+      if (savedUserId && savedUserName) {
+        setCurrentUser({ id: savedUserId, name: savedUserName });
+      }
+    }
     setHydrated(true);
   }, []);
 
@@ -29,16 +51,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const res = await apiLogin(data);
     if (!res.token) throw new Error("No token returned");
     localStorage.setItem("token", res.token);
-    localStorage.setItem("username", data.username);
+
+    const payload = decodeJWTPayload(res.token);
+    const userId = payload.sub;
+    if (!userId) throw new Error("Invalid token: no sub");
+
+    const user = await getUser(userId);
+    localStorage.setItem("userId", user.id);
+    localStorage.setItem("userName", user.name);
+
     setToken(res.token);
-    setUsername(data.username);
+    setCurrentUser({ id: user.id, name: user.name });
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem("token");
-    localStorage.removeItem("username");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userName");
     setToken(null);
-    setUsername(null);
+    setCurrentUser(null);
   }, []);
 
   if (!hydrated) return null;
@@ -47,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         token,
-        username,
+        currentUser,
         isAuthenticated: !!token,
         login,
         logout,

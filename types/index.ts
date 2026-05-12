@@ -1,17 +1,19 @@
-export interface Post {
-  id: number;
-  title: string;
-  content: string;
-  userId: number;
+export interface User {
+  id: string;
+  userName: string;
+  email: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface Sub {
-  name: string;
+export interface Post {
+  id: string;
   title: string;
-  description: string;
-  memberCount: number;
+  content: string;
+  userId: string;
+  user?: User;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // API response wrapper
@@ -23,7 +25,7 @@ export interface ApiResponse<T> {
 
 // Auth
 export interface LoginRequest {
-  username: string;
+  email: string;
   password: string;
 }
 
@@ -32,16 +34,7 @@ export interface LoginData {
 }
 
 export interface RegisterRequest {
-  username: string;
+  name: string;
   email: string;
   password: string;
-  age: number;
-}
-
-export interface UserData {
-  id: number;
-  username: string;
-  email: string;
-  created_at: string;
-  updated_at: string;
 }

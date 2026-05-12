@@ -9,9 +9,8 @@ import { register } from "@/lib/auth";
 export default function SignupPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [age, setAge] = useState<number>(18);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,7 +25,7 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      await register({ username, email, password, age });
+      await register({ name, email, password });
       router.push("/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
@@ -42,12 +41,12 @@ export default function SignupPage() {
       <h1>Sign Up</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="username">Username</label>
+          <label htmlFor="name">Name</label>
           <input
-            id="username"
+            id="name"
             type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             required
           />
         </div>
@@ -58,16 +57,6 @@ export default function SignupPage() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="age">Age</label>
-          <input
-            id="age"
-            type="number"
-            value={age}
-            onChange={(e) => setAge(Number(e.target.value))}
             required
           />
         </div>

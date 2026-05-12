@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 
 export default function Navbar() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, currentUser, logout } = useAuth();
 
   return (
     <header>
@@ -15,7 +15,11 @@ export default function Navbar() {
         </div>
         <div>
           {isAuthenticated ? (
-            <button onClick={logout}>Log Out</button>
+            <>
+              <Link href="/create">Create Post</Link>
+              <span>{currentUser?.name}</span>
+              <button onClick={logout}>Log Out</button>
+            </>
           ) : (
             <>
               <Link href="/login">Log In</Link>
