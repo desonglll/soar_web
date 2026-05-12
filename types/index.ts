@@ -1,13 +1,10 @@
 export interface Post {
-  id: string;
+  id: number;
   title: string;
   content: string;
-  author: string;
-  sub: string;
-  upvotes: number;
-  downvotes: number;
-  commentCount: number;
+  userId: number;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface Sub {

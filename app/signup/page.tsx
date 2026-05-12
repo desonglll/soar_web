@@ -1,10 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth-context";
 import { register } from "@/lib/auth";
 
 export default function SignupPage() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [age, setAge] = useState<number>(18);
@@ -12,20 +16,26 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  useEffect(() => {
+    if (isAuthenticated) router.replace("/");
+  }, [isAuthenticated, router]);
+
+  async function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
       await register({ username, email, password, age });
-      window.location.href = "/login";
+      router.push("/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
       setLoading(false);
     }
   }
+
+  if (isAuthenticated) return null;
 
   return (
     <div>
@@ -55,7 +65,8 @@ export default function SignupPage() {
           <label htmlFor="age">Age</label>
           <input
             id="age"
-            type="age"
+            type="number"
+            value={age}
             onChange={(e) => setAge(Number(e.target.value))}
             required
           />

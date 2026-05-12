@@ -1,14 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { login } from "@/lib/auth";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth-context";
 
 export default function LoginPage() {
+  const { isAuthenticated, login } = useAuth();
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) router.replace("/");
+  }, [isAuthenticated, router]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -16,21 +23,16 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await login({ username, password });
-      console.log("login response:", res);
-      if (res.token) {
-        localStorage.setItem("token", res.token);
-        window.location.href = "/";
-      } else {
-        setError("Login succeeded but no token returned");
-      }
+      await login({ username, password });
+      router.push("/");
     } catch (err) {
-      console.error("login error:", err);
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
       setLoading(false);
     }
   }
+
+  if (isAuthenticated) return null;
 
   return (
     <div>
