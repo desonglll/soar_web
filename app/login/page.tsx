@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 export default function LoginPage() {
   const { isAuthenticated, login } = useAuth();
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,7 +23,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await login({ username, password });
+      await login({ userName, password });
       router.push("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
@@ -39,12 +39,12 @@ export default function LoginPage() {
       <h1>Log In</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="username">Username</label>
+          <label htmlFor="userName">Username</label>
           <input
-            id="username"
+            id="userName"
             type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
             required
           />
         </div>

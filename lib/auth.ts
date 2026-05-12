@@ -11,7 +11,11 @@ export async function register(data: RegisterRequest): Promise<User> {
   return res.data.data;
 }
 
-export async function getUser(id: string): Promise<User> {
-  const res = await api.get<ApiResponse<User>>(`/users/${id}`);
+export async function getMe(): Promise<User> {
+  const res = await api.get<ApiResponse<User>>("/me");
   return res.data.data;
+}
+
+export async function logout(): Promise<void> {
+  await api.post("/logout");
 }

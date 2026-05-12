@@ -9,8 +9,9 @@ import { register } from "@/lib/auth";
 export default function SignupPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-  const [name, setName] = useState("");
+  const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
+  const [age, setAge] = useState<number>(18);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,7 +26,7 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      await register({ name, email, password });
+      await register({ userName, email, age, password });
       router.push("/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
@@ -41,12 +42,12 @@ export default function SignupPage() {
       <h1>Sign Up</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="name">Name</label>
+          <label htmlFor="userName">Username</label>
           <input
-            id="name"
+            id="userName"
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
             required
           />
         </div>
@@ -61,12 +62,24 @@ export default function SignupPage() {
           />
         </div>
         <div>
+          <label htmlFor="age">Age</label>
+          <input
+            id="age"
+            type="number"
+            value={age}
+            onChange={(e) => setAge(Number(e.target.value))}
+            min={1}
+            required
+          />
+        </div>
+        <div>
           <label htmlFor="password">Password</label>
           <input
             id="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            minLength={6}
             required
           />
         </div>

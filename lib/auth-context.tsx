@@ -1,12 +1,12 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { login as apiLogin, getUser } from "@/lib/auth";
+import { login as apiLogin, getMe, logout as apiLogout } from "@/lib/auth";
 import type { LoginRequest } from "@/types";
 
 interface CurrentUser {
   id: string;
-  name: string;
+  userName: string;
 }
 
 interface AuthContextType {
@@ -14,20 +14,10 @@ interface AuthContextType {
   currentUser: CurrentUser | null;
   isAuthenticated: boolean;
   login: (data: LoginRequest) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
-
-function decodeJWTPayload(token: string): { sub?: string } {
-  try {
-    const base64 = token.split(".")[1];
-    const json = atob(base64.replace(/-/g, "+").replace(/_/g, "/"));
-    return JSON.parse(json);
-  } catch {
-    return {};
-  }
-}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
@@ -36,15 +26,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
-    const savedUserId = localStorage.getItem("userId");
-    const savedUserName = localStorage.getItem("userName");
     if (savedToken) {
       setToken(savedToken);
-      if (savedUserId && savedUserName) {
-        setCurrentUser({ id: savedUserId, name: savedUserName });
-      }
+      getMe()
+        .then((user) => {
+          setCurrentUser({ id: user.id, userName: user.userName });
+          localStorage.setItem("userId", user.id);
+          localStorage.setItem("userName", user.userName);
+        })
+        .catch(() => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("userId");
+          localStorage.removeItem("userName");
+          setToken(null);
+          setCurrentUser(null);
+        })
+        .finally(() => setHydrated(true));
+    } else {
+      setHydrated(true);
     }
-    setHydrated(true);
   }, []);
 
   const login = useCallback(async (data: LoginRequest) => {
@@ -52,19 +52,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!res.token) throw new Error("No token returned");
     localStorage.setItem("token", res.token);
 
-    const payload = decodeJWTPayload(res.token);
-    const userId = payload.sub;
-    if (!userId) throw new Error("Invalid token: no sub");
-
-    const user = await getUser(userId);
+    const user = await getMe();
     localStorage.setItem("userId", user.id);
     localStorage.setItem("userName", user.userName);
 
     setToken(res.token);
-    setCurrentUser({ id: user.id, name: user.userName });
+    setCurrentUser({ id: user.id, userName: user.userName });
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    try {
+      await apiLogout();
+    } catch {
+      // still clear local state even if API fails
+    }
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
     localStorage.removeItem("userName");
@@ -79,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         token,
         currentUser,
-        isAuthenticated: !!token,
+        isAuthenticated: !!token && !!currentUser,
         login,
         logout,
       }}
