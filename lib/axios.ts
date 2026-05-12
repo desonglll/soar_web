@@ -30,7 +30,8 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401 && typeof window !== "undefined") {
       localStorage.removeItem("token");
-      localStorage.removeItem("username");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("userName");
       window.location.href = "/login";
       return Promise.reject(new Error("Session expired"));
     }

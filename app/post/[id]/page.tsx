@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getPost, deletePost } from "@/lib/posts";
 import { useAuth } from "@/lib/auth-context";
+import CommentSection from "@/components/comment-section";
 import type { Post } from "@/types";
 
 export default function PostDetailPage() {
@@ -61,6 +62,7 @@ export default function PostDetailPage() {
           </div>
         )}
       </article>
+      <CommentSection postId={post.id} />
     </div>
   );
 }

@@ -4,6 +4,7 @@ export interface User {
   email: string;
   createdAt: string;
   updatedAt: string;
+  deletedAt: string | null;
 }
 
 export interface Post {
@@ -12,6 +13,18 @@ export interface Post {
   content: string;
   userId: string;
   user?: User;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Comment {
+  id: string;
+  content: string;
+  postId: string;
+  userId: string;
+  user?: User;
+  parentId: string | null;
+  replies: Comment[];
   createdAt: string;
   updatedAt: string;
 }
@@ -25,7 +38,7 @@ export interface ApiResponse<T> {
 
 // Auth
 export interface LoginRequest {
-  email: string;
+  username: string;
   password: string;
 }
 

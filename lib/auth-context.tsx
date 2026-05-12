@@ -58,10 +58,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const user = await getUser(userId);
     localStorage.setItem("userId", user.id);
-    localStorage.setItem("userName", user.name);
+    localStorage.setItem("userName", user.userName);
 
     setToken(res.token);
-    setCurrentUser({ id: user.id, name: user.name });
+    setCurrentUser({ id: user.id, name: user.userName });
   }, []);
 
   const logout = useCallback(() => {
