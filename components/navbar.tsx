@@ -11,13 +11,10 @@ export default function Navbar() {
       <nav className="flex items-center justify-between">
         <Link href="/">SOAR</Link>
         <div>
-          <input type="text" placeholder="Search..." />
-        </div>
-        <div>
           {isAuthenticated ? (
             <>
               <Link href="/create">Create Post</Link>
-              <span>{currentUser?.name}</span>
+              <span>{currentUser?.userName}</span>
               <button onClick={logout}>Log Out</button>
             </>
           ) : (

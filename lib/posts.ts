@@ -1,16 +1,20 @@
 import api from "@/lib/axios";
-import type { ApiResponse, Post } from "@/types";
+import type { ApiResponse, Post, GetPostsParams, PaginatedPosts } from "@/types";
 
-export async function getPosts(): Promise<Post[]> {
-  const res = await api.get<ApiResponse<Post[]>>("/posts");
-  console.log(res.data)
-
+export async function getPosts(params?: GetPostsParams): Promise<PaginatedPosts> {
+  const url = params?.keyword ? "/posts/search" : "/posts";
+  const res = await api.get<ApiResponse<PaginatedPosts>>(url, {
+    params: {
+      page: params?.page,
+      pageSize: params?.pageSize,
+      ...(params?.keyword ? { keyword: params.keyword } : {}),
+    },
+  });
   return res.data.data;
 }
 
 export async function getPost(id: string): Promise<Post> {
   const res = await api.get<ApiResponse<Post>>(`/posts/${id}`);
-  console.log(res.data)
   return res.data.data;
 }
 

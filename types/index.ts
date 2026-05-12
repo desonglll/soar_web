@@ -2,9 +2,10 @@ export interface User {
   id: string;
   userName: string;
   email: string;
+  age: number;
   createdAt: string;
   updatedAt: string;
-  deletedAt: string | null;
+  deletedAt?: string | null;
 }
 
 export interface Post {
@@ -15,6 +16,7 @@ export interface Post {
   user?: User;
   createdAt: string;
   updatedAt: string;
+  deletedAt?: string | null;
 }
 
 export interface Comment {
@@ -36,9 +38,23 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+// Pagination
+export interface GetPostsParams {
+  page?: number;
+  pageSize?: number;
+  keyword?: string;
+}
+
+export interface PaginatedPosts {
+  items: Post[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 // Auth
 export interface LoginRequest {
-  username: string;
+  userName: string;
   password: string;
 }
 
@@ -47,7 +63,8 @@ export interface LoginData {
 }
 
 export interface RegisterRequest {
-  name: string;
+  userName: string;
   email: string;
+  age: number;
   password: string;
 }

@@ -47,7 +47,7 @@ export default function PostDetailPage() {
 
   return (
     <div>
-      <Link href="/">Back</Link>
+      <button onClick={() => router.back()}>Back</button>
       <article>
         <h1>{post.title}</h1>
         <p>
